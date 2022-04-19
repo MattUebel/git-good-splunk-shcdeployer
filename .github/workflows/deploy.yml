@@ -14,4 +14,4 @@ jobs:
           SPLUNK_PASS: ${{ secrets.SPLUNK_PASS }}
         run: |
           sudo -u root /bin/bash -c "cd $GITHUB_WORKSPACE && ./link_new_apps.sh"
-          sudo -u splunk /opt/splunk/bin/splunk apply shcluster-bundle -target https://sh1.mattuebel.splunk.net:8089 -auth admin:$SPLUNK_PASS
+          sudo -u splunk /opt/splunk/bin/splunk apply shcluster-bundle -target https://sh1.mattuebel.splunk.net:8089 -auth admin:$SPLUNK_PASS --answer-yes
