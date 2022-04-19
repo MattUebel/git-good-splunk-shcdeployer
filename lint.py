@@ -1,9 +1,9 @@
 import configparser
 import os
 import sys
+import re
 
-ALERT_THRESHOLD = 86400
-WARNING_THRESHOLD = 864000
+BAD_SEARCH_PATTERNS = ["index=\*"]
 ERROR_MESSAGES = []
 WARNING_MESSAGES = []
 OUTPUT_FILE = "output.txt"
@@ -18,16 +18,14 @@ for file in config_files:
     config = configparser.ConfigParser()
     config.read(file)
     for section in config.sections():
-        if config.has_option(section, "frozenTimePeriodInSecs"):
-            frozenTimePeriodInSecs = config.getint(section, "frozenTimePeriodInSecs")
-            if frozenTimePeriodInSecs < ALERT_THRESHOLD:
-                ERROR_MESSAGES.append(
-                    f"The index `{section}` in `{file}` has a frozenTimePeriodInSecs of `{frozenTimePeriodInSecs}` which is less than the required value of `{ALERT_THRESHOLD}`"
-                )
-            elif frozenTimePeriodInSecs < WARNING_THRESHOLD:
-                WARNING_MESSAGES.append(
-                    f"The index `{section}` in `{file}` has a frozenTimePeriodInSecs of `{frozenTimePeriodInSecs}` which is less than the recommended value of `{WARNING_THRESHOLD}`"
-                )
+        if config.has_option(section, "search"):
+            search_string = config.get(section, "search")
+            # Check for bad search patterns
+            for pattern in BAD_SEARCH_PATTERNS:
+                if re.search(pattern, search_string):
+                    ERROR_MESSAGES.append(
+                        f"The search `{section}` in `{file}` contains a bad search pattern `{pattern}`."
+                    )
 
 with open(OUTPUT_FILE, "w") as f:
     if ERROR_MESSAGES:
